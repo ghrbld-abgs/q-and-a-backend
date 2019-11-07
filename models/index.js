@@ -1,4 +1,5 @@
 const db = require('../database');
+const { DateTime } = require("luxon");
 
 const getProdQuestions = async (id) => {
 
@@ -100,4 +101,27 @@ const getProdAnswers = async (questionId, page) => {
 return response;
 }
 
-module.exports = {getProdQuestions, getProdAnswers};
+const postProdQuestions = async (prodId, qObject) => {
+
+  let date = DateTime.local().toString();
+
+  let postQuestion = {
+    "product_id": prodId,
+    "body": qObject.body,
+    "date_written": date,
+    "asker_name": qObject.asker_name,
+    "asker_email": qObject.asker_email,
+    "reported": 0,
+    "helpfulness": 0
+  }
+  console.log('date: ', postQuestion.date_written);
+
+  let newQuestion = await db.query(`INSERT INTO questions (product_id, body, date_written, asker_name, asker_email, reported, helpfulness) VALUES (${postQuestion.product_id}, ${postQuestion.body}, ${postQuestion.date_written}, ${postQuestion.asker_name}, ${postQuestion.asker_email}, ${postQuestion.reported}, ${postQuestion.helpfulness})`)
+
+  return newQuestion;
+  console.log('log of the new question : ', newQuestion);
+
+}
+
+module.exports = {getProdQuestions, getProdAnswers, postProdQuestions};
+
