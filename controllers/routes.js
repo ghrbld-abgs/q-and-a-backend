@@ -11,28 +11,52 @@ routes.get('/:product_id', async (req, res) => {
 })
 
 routes.get('/:question_id/answers', async (req, res) => {
-  console.log('question_id: ', req.params.question_id, 'page: ', req.params.page, 'count: ', req.params.count);
+  // console.log('question_id: ', req.params.question_id, 'page: ', req.params.page, 'count: ', req.params.count);
 
   let answers = await models.getProdAnswers(req.params.question_id)
-  console.log('ANSWERS: ', answers);
+  // console.log('ANSWERS: ', answers);
   res.status(201).send(answers);
 });
 
 routes.post('/:product_id', async (req, res) => {
-  console.log('req body: ', req.body, 'params: ', req.params);
+  // console.log('req body: ', req.body, 'params: ', req.params);
 
   let questionsPost = await models.postProdQuestions(req.params.product_id, req.body)
   res.status(201).send(questionsPost);
 });
 
-routes.post('/:product_id/answers', () => {});
+routes.post('/:question_id/answers', async (req, res) => {
+  console.log('req body: ', req.body, 'params: ', req.params);
+ let answersPost = await models.postProdAnswers(req.params.question_id, req.body)
+ res.status(201).send(answersPost);
+});
 
-routes.put('/question/:question_id/helpful', () => {});
+routes.put('/question/:question_id/helpful', async (req, res) => {
+  // console.log('req.params put: ', req.params);
 
-routes.put('/question/:question_id/report', () => {});
+  let helpfulPut = await models.putQHelpful(req.params.question_id)
+  res.send('204 NO CONTENT');
+});
 
-routes.put('/answer/:answer_id/helpful', () => {});
+routes.put('/question/:question_id/report', async (req, res) => {
 
-routes.put('/question/:answer_id/report', () => {});
+  let reportPut = await models.putQReported(req.params.question_id)
+
+  res.send('204 QUESTION REPORTED')
+});
+
+routes.put('/answer/:answer_id/helpful', async (req, res) => {
+  console.log('answer id: ', req.params.answer_id);
+
+  let helpfulPut = await models.putAHelpful(req.params.answer_id)
+
+  res.send('204 NO CONTENT');
+});
+
+routes.put('/answer/:answer_id/report', async (req, res) => {
+  let reportPut = await models.putAReported(req.params.answer_id)
+
+  res.send('204 ANSWER REPORTED ')
+});
 
 module.exports = routes;

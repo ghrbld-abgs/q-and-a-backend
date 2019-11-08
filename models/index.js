@@ -116,12 +116,91 @@ const postProdQuestions = async (prodId, qObject) => {
   }
   console.log('date: ', postQuestion.date_written);
 
-  let newQuestion = await db.query(`INSERT INTO questions (product_id, body, date_written, asker_name, asker_email, reported, helpfulness) VALUES (${postQuestion.product_id}, ${postQuestion.body}, ${postQuestion.date_written}, ${postQuestion.asker_name}, ${postQuestion.asker_email}, ${postQuestion.reported}, ${postQuestion.helpfulness})`)
+  let newQuestion = await db.query(`INSERT INTO questions (product_id, body, date_written, asker_name, asker_email, reported, helpfulness) VALUES (${postQuestion.product_id}, '${postQuestion.body}', '${postQuestion.date_written}', '${postQuestion.asker_name}', '${postQuestion.asker_email}', ${postQuestion.reported}, ${postQuestion.helpfulness})`)
 
   return newQuestion;
-  console.log('log of the new question : ', newQuestion);
+  // console.log('log of the new question : ', newQuestion);
 
 }
 
-module.exports = {getProdQuestions, getProdAnswers, postProdQuestions};
+const postProdAnswers = async (questionId, ansObject) => {
+
+  let date = DateTime.local().toString();
+  // console.log('date: ', date);
+
+  let postAnswer = {
+    question_id: questionId,
+    body: ansObject.body,
+    date_written: date,
+    answerer_name: ansObject.answerer_name,
+	  answerer_email: ansObject.answerer_email,
+	  reported: 0,
+    helpfulness: 0,
+    photos: ansObject.photos
+  }
+
+  let getanswer_id = await db.query(`SELECT id FROM answers WHERE id = ( SELECT MAX( id ) FROM answers )`)
+
+  let answer_id = (getanswer_id[0].id + 1);
+
+  console.log('answer id plus one: ', getanswer_id[0].id + 1, 'answer id plain: ', getanswer_id);
+
+  console.log('photos from models: ', postAnswer.photos);
+
+
+
+  let newAnswer = await db.query(`INSERT INTO answers (question_id, body, date_written, answerer_name, answerer_email, reported, helpfulness) VALUES (${postAnswer.question_id}, '${postAnswer.body}', '${postAnswer.date_written}', '${postAnswer.answerer_name}', '${postAnswer.answerer_email}', ${postAnswer.reported}, ${postAnswer.helpfulness})`)
+
+  console.log('new answer id: ', answer_id);
+
+postAnswer.photos.forEach(async (photo, i) => {
+  let newPhotos = await db.query(`INSERT INTO photos (answer_id, url) VALUES (${answer_id}, '${postAnswer.photos[i].url}')`)
+})
+
+
+  return newAnswer;
+  console.log('new answer: ', newAnswer);
+
+}
+
+const putQHelpful = async (question_id) => {
+
+  let howHelpful = await db.query(`SELECT helpfulness FROM questions WHERE id = ${question_id}`)
+
+  let helpfulnessIncrease = (howHelpful[0].helpfulness + 1);
+
+  let isHelpful = await db.query(`UPDATE questions SET helpfulness = ${helpfulnessIncrease} WHERE id = ${question_id}`)
+
+
+  return isHelpful;
+}
+
+const putQReported = async (question_id) => {
+
+  let report = await db.query(`UPDATE questions SET reported = 1 WHERE id = ${question_id}`)
+
+  return report;
+}
+
+const putAHelpful = async (answer_id) => {
+
+  let howHelpful = await db.query(`SELECT helpfulness FROM answers WHERE id = ${answer_id}`)
+ console.log('how helpful: ', howHelpful);
+
+
+  let helpfulnessIncrease = (howHelpful[0].helpfulness + 1);
+
+  let isHelpful = await db.query(`UPDATE answers SET helpfulness = ${helpfulnessIncrease} WHERE id = ${answer_id}`)
+
+
+  return isHelpful;
+}
+const putAReported = async (answer_id) => {
+
+  let report = await db.query(`UPDATE answers SET reported = 1 WHERE id = ${answer_id}`)
+
+  return report;
+}
+
+module.exports = {getProdQuestions, getProdAnswers, postProdQuestions, postProdAnswers, putQHelpful, putQReported, putAHelpful, putAReported};
 
