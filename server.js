@@ -1,3 +1,4 @@
+const newRelic = require('newrelic');
 const express = require('express');
 const bodyParser = require('body-parser');
 const routes = require('./controllers/routes');

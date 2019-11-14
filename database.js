@@ -1,12 +1,12 @@
   const mysql = require('mysql2');
   // const bluebird = require('bluebird');
   const { promisify } = require('util');
-
+  const password = require('./filesToIgnore/config').password
 
   const con = mysql.createConnection({
     host: "localhost",
     user: "root",
-    password: "skipperd",
+    password: password,
     database: "q_and_a"
   });
 
